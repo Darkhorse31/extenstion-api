@@ -1,6 +1,7 @@
 var express = require('express');
 const jwt = require('jsonwebtoken');
-
+const returnmsg = require("../exception/returnmsg.js");
+const error = require("../exception/error.js");
 
 var router = express.Router();
 const knex = global.db
@@ -21,14 +22,15 @@ router.post("/login",async(req,res)=>{
        } catch (error) {
         res.send(error)
        }
-      return res.json({
-        user:user,
-        token:token,
-        success:true
-      })
+       let returnState=returnmsg.ex1
+       returnState.data=Array.isArray(user)&&user.length>0&&user[0]
+       returnState.token=token
+      return res.json(returnState)
       } catch (error) {
          return res.send(error)
       }
+     }else{
+       return res.json(error.Err2)
      }
      return res.send("")
    }
@@ -46,7 +48,8 @@ router.get("/logout",async(req,res)=>{
         .del().returning("*")
         res.send({
           tokenDel:deleteToken,
-          message:"logOut"
+          message:"Logout successfully.",
+          success:true
         })
 
     } catch (error) {
@@ -58,6 +61,5 @@ router.get("/logout",async(req,res)=>{
       message:'token not found'
     })
   }
-  console.log()
 })
 module.exports = router;

@@ -3,6 +3,7 @@ var router = express.Router();
 const { insertBatch, insertStudent } = require("../insertData/insertData.js");
 const auth = require("../insertData/auth.js");
 const error = require("../exception/error.js");
+const returnmsg = require("../exception/returnmsg.js");
 const knex = global.db;
 router.get("/",(req,res)=>{
   res.send("")
