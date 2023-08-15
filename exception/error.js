@@ -8,6 +8,10 @@ const error={
         message:"username or password is invalid",
         success:false
 
+    },
+    'Err3':{
+        code:201,
+        message:"Please Supply user id"
     }
 }
 module.exports=error
