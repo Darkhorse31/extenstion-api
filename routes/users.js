@@ -86,4 +86,15 @@ router.get("/dashboard", async (req, res) => {
     res.json(error?.Err1);
   }
 });
+router.post('/changepass',async(req,res)=>{
+  const {username,oldpass,newpass}=req.body
+  knex('table_name') 
+  .where('column_name', '=', value) 
+  .update({ column_to_update: new_value }) 
+  .then(() => {
+    console.log('Update successful');
+  })
+  
+ 
+})
 module.exports = router;

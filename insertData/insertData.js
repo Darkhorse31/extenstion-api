@@ -12,7 +12,9 @@ async function insertBatch(batchType) {
 }
 
 async function insertStudent(data,res) {
-    
+    const batchuser= await knex('batches').select('username').where({batch_type:data?.adhaar}).returning('*')
+    data.batch_admin=batchuser?.length>0&& batchuser[0]?.username  
+    data.date=new Date().toISOString()
     data.photo1={photo1:data.photo1}
     data.photo2={photo2:data.photo2}
     data.photo3={photo3:data.photo3}
@@ -20,7 +22,9 @@ async function insertStudent(data,res) {
     data.photo5={photo5:data.photo5}
     try {
       const result = await knex('studentInfo').insert(data);
-      res.send()
+      res.json({
+        message:"Data inserted successfully."
+      })
     } catch (error) {
       console.error('Error inserting data:', error);
     }

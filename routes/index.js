@@ -5,6 +5,7 @@ const auth = require("../insertData/auth.js");
 const error = require("../exception/error.js");
 const returnmsg = require("../exception/returnmsg.js");
 const { getPermissions } = require("../businness/permissons.js");
+const {deleteStudent} = require('../insertData/deletedata.js')
 
 const knex = global.db;
 router.get("/", (req, res) => {
@@ -64,25 +65,34 @@ router.get("/getbatches", async (req, res) => {
 });
 router.get("/getstudent", async (req, res) => {
   if (await auth(req.headers)) {
+    const perName = await getPermissions(req.headers, res);
+    if (perName?.permission == "super_admin") {
     try {
       const result = await knex.select("*").from("studentInfo");
       res.send({ data: result });
     } catch (error) {
       res.send({ err: error });
     }
+  }else{
+    try {
+      const result = await knex.select("*").from("studentInfo").where({batch_admin:perName?.user});
+      res.send({ data: result });
+    } catch (error) {
+      res.send({ err: error });
+    }
+  }
   } else {
     res.json(error?.Err1);
   }
 });
 
 router.post("/postInfo", async (req, res) => {
-  if (await auth(req.headers)) {
+ 
     let body = req.body;
     delete body.uid;
+
     insertStudent(body, res);
-  } else {
-    res.json(error?.Err1);
-  }
+  
 });
 router.post("/insertuser", async (req, res) => {
   if (await auth(req.headers)) {
@@ -141,6 +151,19 @@ router.post("/getuser", async (req, res) => {
       } catch (error) {
         console.error("Error inserting batch:", error);
       }
+    }
+  } else {
+    res.json(error?.Err1);
+  }
+});
+
+router.post("/student/delete", async (req, res) => {
+  const { id } = req.body;
+  if (await auth(req.headers)) {
+    if (id) {
+      await deleteStudent(id, res);
+    } else {
+      res.json(error?.Err4);
     }
   } else {
     res.json(error?.Err1);
