@@ -12,6 +12,11 @@ const error={
     'Err3':{
         code:201,
         message:"Please Supply user id"
+    },
+    'Err4':{
+        code:201,
+        message:"Id not Found.",
+        success:false
     }
 }
 module.exports=error

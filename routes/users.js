@@ -86,4 +86,55 @@ router.get("/dashboard", async (req, res) => {
     res.json(error?.Err1);
   }
 });
+router.post('/changepass',async(req,res)=>{
+  const {username,oldpass,newpass}=req.body
+  if (await auth(req.headers)) {
+  knex('userlist') 
+  .where({email:username,password:oldpass}) 
+  .update({ password: newpass }) 
+  .then((data) => {
+    if(data){
+      res.json({
+        message:"Change password successfully."
+      })
+    }else{
+      res.json({
+        message:"Old password is not match"
+      })
+    }
+  })
+}else{
+  res.json(error?.Err1);
+}
+})
+router.post('/edituser',async (req,res)=>{
+  console.log(req.body)
+  if (await auth(req.headers)) {
+    const perName = await getPermissions(req.headers, res);
+    if (typeof perName == "object" && perName?.permission == "super_admin") {
+      knex('userlist') 
+      .where({email:req.body.email}) 
+      .update(req.body) 
+      .then((data) => {
+        if(data){
+          res.json({
+            message:"Edit user successfully"
+          })
+        }else{
+          res.json({
+            message:"No record found"
+          })
+        }
+      })
+    }
+    else{
+      res.json({
+        message:'Permission denied'
+      })
+    }
+  } else {
+    res.json(error?.Err1);
+  }
+
+})
 module.exports = router;
