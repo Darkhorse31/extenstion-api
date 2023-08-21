@@ -17,6 +17,11 @@ const error={
         code:201,
         message:"Id not Found.",
         success:false
+    },
+    'Err5':{
+        code:201,
+        message:'Permission not found.',
+        success:false
     }
 }
 module.exports=error

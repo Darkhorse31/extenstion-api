@@ -102,15 +102,17 @@ router.post("/insertuser", async (req, res) => {
       try {
         await knex("userlist")
           .insert({
-            first_name: userInfo.first_name.toUpperCase(),
-            last_name: userInfo.last_name.toUpperCase(),
-            email: userInfo.email.toUpperCase(),
-            mobile: userInfo.mobile.toUpperCase(),
+            first_name: userInfo.first_name,
+            last_name: userInfo.last_name,
+            email: userInfo.email,
+            mobile: userInfo.mobile,
             number_of_batches: userInfo.number_of_batches,
             password: userInfo.password,
             edit_option: userInfo.edit_option,
             delete_option: userInfo.delete_option,
             admin_name: perName?.user,
+            admin:userInfo?.admin?userInfo?.admin:false,
+            user:userInfo?.user?userInfo?.user:false
           })
           .then((result) => {
             res.send({
@@ -137,7 +139,7 @@ router.post("/getuser", async (req, res) => {
     const perName = await getPermissions(req.headers, res);
     if (typeof perName == "object" && perName?.permission == "super_admin") {
       try {
-        const result = await knex.select("*").from("userlist");
+        const result = await knex.select("*").from("userlist").where({user:1});
         return res.send({ data: result });
       } catch (error) {
         console.error("Error inserting batch:", error);
@@ -145,7 +147,7 @@ router.post("/getuser", async (req, res) => {
     } else if(typeof perName=='object'){
       try {
         const result = await knex.select("*").from("userlist").where({
-          admin_name:perName?.user
+          admin_name:perName?.user,user:1
         });
         return res.send({ data: result });
       } catch (error) {
@@ -156,7 +158,24 @@ router.post("/getuser", async (req, res) => {
     res.json(error?.Err1);
   }
 });
-
+router.post("/getadmin", async (req, res) => {
+  if (await auth(req.headers)) {
+    const perName = await getPermissions(req.headers, res);
+    if (typeof perName == "object" && perName?.permission == "super_admin") {
+      try {
+        const result = await knex.select("*").from("userlist").where({admin:1});
+        return res.send({ data: result });
+      } catch (error) {
+        console.error("Error inserting batch:", error);
+      }
+    } else{
+      res.json(error?.Err5)
+    }
+    
+  } else {
+    res.json(error?.Err1);
+  }
+});
 router.post("/student/delete", async (req, res) => {
   const { id } = req.body;
   if (await auth(req.headers)) {
