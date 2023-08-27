@@ -20,6 +20,8 @@ async function insertStudent(data,res) {
     data.photo3={photo3:data.photo3}
     data.photo4={photo4:data.photo4}
     data.photo5={photo5:data.photo5}
+    const numberOfImages=await knex('studentInfo').count('* as student').where({adhaar:data?.adhaar}).returning("*")
+    if(numberOfImages?.length>0 && numberOfImages[0]?.student<36){
     try {
       const result = await knex('studentInfo').insert(data);
       res.json({
@@ -28,5 +30,8 @@ async function insertStudent(data,res) {
     } catch (error) {
       console.error('Error inserting data:', error);
     }
+  }else{
+    res.json({message:"You can Add only 35 student. "})
+  }
   }
 module.exports={insertBatch,insertStudent}
