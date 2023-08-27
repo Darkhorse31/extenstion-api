@@ -9,7 +9,7 @@ const {deleteStudent} = require('../insertData/deletedata.js')
 
 const knex = global.db;
 router.get("/", (req, res) => {
-  res.send("");
+  res.json({hello:"Hello"});
 });
 router.post("/studentInfo", async (req, res, next) => {
   if (await auth(req.headers)) {
@@ -31,15 +31,31 @@ router.post("/studentInfo", async (req, res, next) => {
 router.post("/insertbatch", async (req, res) => {
   if (await auth(req.headers)) {
     const body = req.body;
-    try {
-      const result = await knex("batches")
-        .insert({ batch_type: body.batch_type, username: body.username })
-        .returning("*");
-      res.send({ data: result });
-    } catch (error) {
-      console.error("Error inserting batch:", error);
+    const numberofbatches = await knex("userlist")
+      .select("number_of_batches")
+      .where({ email: body.username })
+      .returning("*");
+    const countnuberofBatches = await knex("batches")
+      .count("* as batches")
+      .where({ username: body.username });
+    if (
+      numberofbatches?.length > 0 &&
+      numberofbatches[0]?.number_of_batches > countnuberofBatches?.length > 0 &&
+      countnuberofBatches[0]?.batches
+    ) {
+      try {
+        const result = await knex("batches")
+          .insert({ batch_type: body.batch_type, username: body.username })
+          .returning("*");
+        res.send({ data: result, message: "batch insert successfullly" });
+      } catch (error) {
+        console.error("Error inserting batch:", error);
+      }
+
+    } else{
+      res.json({message:"Batch limit exceeded."})
     }
-  } else {
+  }else {
     res.json(error?.Err1);
   }
 });
@@ -90,7 +106,7 @@ router.post("/postInfo", async (req, res) => {
  
     let body = req.body;
     delete body.uid;
-
+     
     insertStudent(body, res);
   
 });
