@@ -71,16 +71,35 @@ router.get("/dashboard", async (req, res) => {
   if (await auth(req.headers)) {
     const perName = await getPermissions(req.headers, res);
   
-    if(perName){
+    if(perName?.permission=='super_admin'){
     try {
-      const result = await knex.raw(query.dashboard.query, {
-        user: perName?.user,
-      });
-      return res.send({ data: result[0] });
+      const result = await knex.raw(query.dashboard.query_super);
+       res.send({ data: result[0] });
 
     } catch (error) {
       res.json(error);
     }
+  } else if(perName?.permission=='admin'){
+    try {
+      const userresult = await knex.raw(query.dashboard.qwery_admin1,{admin:perName.user});
+      const imageResult = await knex.raw(query.dashboard.qwery_admin2,{admin:perName.user});
+      let result=[...userresult[0],...imageResult[0]]
+      res.json({
+        data:result,
+        success:true
+      })
+    } catch (error) {
+      return false
+    }
+   
+  } else{
+    const userresult = await knex.raw(query.dashboard.query_user1,{user:perName.user});
+    const imageResult = await knex.raw(query.dashboard.query_user2,{user:perName.user});
+    let result=[...userresult[0],...imageResult[0]]
+    res.json({
+      data:result,
+      success:true
+    })
   }
   } else {
     res.json(error?.Err1);
@@ -108,7 +127,6 @@ router.post('/changepass',async(req,res)=>{
 }
 })
 router.post('/edituser',async (req,res)=>{
-  console.log(req.body)
   if (await auth(req.headers)) {
     const perName = await getPermissions(req.headers, res);
     if (typeof perName == "object" && perName?.permission == "super_admin") {

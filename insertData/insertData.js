@@ -13,7 +13,11 @@ async function insertBatch(batchType) {
 
 async function insertStudent(data,res) {
     const batchuser= await knex('batches').select('username').where({batch_type:data?.adhaar}).returning('*')
+    const admin= await knex('userlist').select('admin_name').where({email:batchuser[0]?.username}).returning('*')
+    
+    
     data.batch_admin=batchuser?.length>0&& batchuser[0]?.username  
+    data.admin_name=admin?.length>0&& admin[0]?.admin_name
     data.date=new Date().toISOString()
     data.photo1={photo1:data.photo1}
     data.photo2={photo2:data.photo2}
