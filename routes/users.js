@@ -155,4 +155,28 @@ router.post('/edituser',async (req,res)=>{
   }
 
 })
+router.get("/deleteuser", async (req, res) => {
+  const { authorization } = req.headers;
+  if (authorization.includes("Bearer") && authorization.length > 8) {
+    try {
+      const username=req.body?.username
+      const token = authorization.split(" ")[1];
+      const deleteToken = await knex("userlist")
+        .where({ email: username })
+        .del()
+        .returning("*");
+      res.send({
+        tokenDel: deleteToken,
+        message: "Logout successfully.",
+        success: true,
+      });
+    } catch (error) {
+      res.send(error);
+    }
+  } else {
+    res.send({
+      message: "token not found",
+    });
+  }
+});
 module.exports = router;
