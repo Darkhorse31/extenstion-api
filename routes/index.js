@@ -39,9 +39,8 @@ router.post("/insertbatch", async (req, res) => {
       .count("* as batches")
       .where({ username: body.username });
     if (
-      numberofbatches?.length > 0 &&
-      numberofbatches[0]?.number_of_batches > countnuberofBatches?.length > 0 &&
-      countnuberofBatches[0]?.batches
+      Number(numberofbatches[0]?.number_of_batches) > 
+      Number(countnuberofBatches[0]?.batches)
     ) {
       try {
         const result = await knex("batches")
