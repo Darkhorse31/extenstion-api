@@ -178,4 +178,27 @@ router.post("/deleteuser", async (req, res) => {
     });
   }
 });
+router.post("/deletebatch", async (req, res) => {
+  const { authorization } = req.headers;
+  if (authorization.includes("Bearer") && authorization.length > 8) {
+    try {
+      const id=req.body?.id
+      const deleteuser = await knex("batches")
+        .where({ id: id })
+        .del()
+        .returning("*");
+      res.send({
+        tokenDel: deleteuser,
+        message: "Data Deleted successfully.",
+        success: true,
+      });
+    } catch (error) {
+      res.send(error);
+    }
+  } else {
+    res.send({
+      message: "token not found",
+    });
+  }
+});
 module.exports = router;
