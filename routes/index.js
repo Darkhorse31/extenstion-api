@@ -68,7 +68,13 @@ router.get("/getbatches", async (req, res) => {
       } catch (error) {
         res.json(error);
       }
-    } else {
+    }else if(perName?.permission=='admin'){
+      const batches = await knex.raw(`SELECT b.* from userlist u
+      INNER JOIN batches b on u.email= b.username
+      where u.admin_name=:admin`,{admin:perName.user});
+      res.send({ data: batches[0] });
+    }
+    else {
       const result = await knex.select("*").from("batches").where({
         username: perName?.user,
       });
